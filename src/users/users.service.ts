@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
@@ -8,6 +5,7 @@ export interface UserResponse {
   id: number;
   username: string;
   email: string;
+  fullName: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,6 +38,7 @@ export class UsersService {
           id: true,
           username: true,
           email: true,
+          fullName: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -64,13 +63,17 @@ export class UsersService {
         id: true,
         username: true,
         email: true,
+        fullName: true,
         createdAt: true,
         updatedAt: true,
         password: true,
       },
     });
 
-    return user;
+    if (!user) return null;
+
+    const { password, ...result } = user;
+    return result;
   }
 
   async findOne(id: number): Promise<UserResponse> {
@@ -83,6 +86,7 @@ export class UsersService {
         id: true,
         username: true,
         email: true,
+        fullName: true,
         createdAt: true,
         updatedAt: true,
       },

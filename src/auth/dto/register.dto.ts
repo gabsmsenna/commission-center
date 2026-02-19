@@ -11,6 +11,10 @@ export class RegisterDto {
   @IsNotEmpty({ message: 'O nome de usuário não pode estar vazio.' })
   username!: string;
 
+  @IsString({ message: 'O nome completo deve ser um texto.' })
+  @IsNotEmpty({ message: 'O nome completo não pode estar vazio.' })
+  fullName!: string;
+
   @Transform(({ value }: TransformFnParams) => {
     if (typeof value === 'string') {
       return value.trim().toLowerCase();
