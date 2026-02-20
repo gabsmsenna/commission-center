@@ -7,12 +7,14 @@ generator client {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique
-  password  String
-  email     String    @unique
-  fullName  String?   @map("full_name") @db.VarChar(255)
-  projects Project[]
+  id               Int       @id @default(autoincrement())
+  username         String    @unique
+  password         String
+  email            String    @unique
+  fullName         String?   @map("full_name") @db.VarChar(255)
+  refreshToken     String?   @map("refresh_token")
+  refreshExpiresAt DateTime? @map("refresh_expires_at")
+  projects         Project[]
   
   deletedAt DateTime? 
   createdAt DateTime  @default(now())

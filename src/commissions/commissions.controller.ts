@@ -7,6 +7,24 @@ export class CommissionsController {
   constructor(private readonly commissionsService: CommissionsService) {}
 
   @UseGuards(JwtAuthGuard)
+  @Get('stats')
+  getStats(
+    @Request() req: any,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const userId = req.user.userId;
+    return this.commissionsService.getStats(userId, startDate, endDate);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('distribution')
+  getDistribution(@Request() req: any) {
+    const userId = req.user.userId;
+    return this.commissionsService.getCommissionDistribution(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get()
   calculate(
     @Request() req: any,

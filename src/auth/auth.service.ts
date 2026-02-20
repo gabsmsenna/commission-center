@@ -69,8 +69,83 @@ export class AuthService {
     }
 
     const payload = { email: user.email, sub: user.id };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '2h' });
+
+    const refreshToken = crypto.randomUUID();
+    const refreshExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        refreshToken,
+        refreshExpiresAt,
+      },
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: accessToken,
+      refresh_token: refreshToken,
     };
+  }
+
+  async refreshToken(refreshToken: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        refreshToken,
+        refreshExpiresAt: { gte: new Date() },
+        deletedAt: null,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Refresh token inválido ou expirado');
+    }
+
+    const payload = { email: user.email, sub: user.id };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '2h' });
+    const newRefreshToken = crypto.randomUUID();
+    const refreshExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        refreshToken: newRefreshToken,
+        refreshExpiresAt,
+      },
+    });
+
+    return {
+      access_token: accessToken,
+      refresh_token: newRefreshToken,
+    };
+  }
+
+  async logout(userId: number) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        refreshToken: null,
+        refreshExpiresAt: null,
+      },
+    });
+
+    return { success: true };
+  }
+
+  async getMe(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId, deletedAt: null },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Usuário não encontrado');
+    }
+
+    return user;
   }
 }
