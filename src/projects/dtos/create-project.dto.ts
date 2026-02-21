@@ -20,7 +20,7 @@ export class CreateProjectDto {
   name!: string;
 
   @IsNumber({}, { message: 'A porcentagem de comissão deve ser um número.' })
-  @Min(0, { message: 'A comissão mínima é 0%.' })
+  @Min(0.1, { message: 'A comissão mínima é 0.1%.' })
   @Max(100, { message: 'A comissão máxima é 100%.' })
   commissionPercentage!: number;
 }
